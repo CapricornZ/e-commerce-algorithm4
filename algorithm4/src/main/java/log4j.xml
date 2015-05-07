@@ -27,6 +27,11 @@
 		</filter>
 	</appender>
 	
+	<logger name="process" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE-CLEAN" />
+		<appender-ref ref="FILE-CLEAN" />
+	</logger>
 	<logger name="e_commerce.algorithm4" additivity="false">
 		<level value="DEBUG" />
 		<appender-ref ref="CONSOLE-CLEAN" />

@@ -84,9 +84,12 @@ public class TrueAndFalse {
 			}
 		}
 		
-		logger.info("{}", sBuild.toString());
+		logger.info("{}", sBuild.toString());FileOutput.write(sBuild.toString());
 		logger.info(" [ x:{} ({}%), o:{} ({}%) ]\r\n", 
 				countFalse, ((float)countFalse*100/(float)(countFalse+countTrue)), 
 				countTrue, ((float)countTrue*100/(float)(countFalse+countTrue)));
+		FileOutput.write(String.format(" [ x:%d (%f%%), o:%d (%f%%) ]\r\n", 
+				countFalse, ((float)countFalse*100/(float)(countFalse+countTrue)), 
+				countTrue, ((float)countTrue*100/(float)(countFalse+countTrue))));
 	}
 }

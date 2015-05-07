@@ -12,6 +12,9 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import process.IProcessor;
+import process.Start;
+import e_commerce.algorithm4.FileOutput;
 import e_commerce.algorithm4.stastic.ISequentialStastic;
 import e_commerce.algorithm4.stastic.SequentialForSection;
 import e_commerce.algorithm4.App;
@@ -22,15 +25,28 @@ import e_commerce.algorithm4.App;
  */
 public class App {
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
+	
+	public static String Class3O = "process.CycleNegtive";
+	public static String Class3X = "process.CyclePositive";
+	public static int cycleStep=3;
 
 	public static void main(String[] args) throws IOException {
 
-		if (args.length != 1) {
+		if (args.length < 2) {
 			logger.error("params:file path required!\r\n");
 			return;
 		}
 
 		String filePath = args[0];
+		String output = args[1];
+		String fileName = null;
+		{
+			String[] array = filePath.split("/");
+			fileName = array[array.length-1];
+			array = fileName.split("\\.");
+			fileName = String.format("%s%s_step%d.txt", output, array[0], cycleStep);
+		}
+		FileOutput.init(fileName);
 		logger.info("----------------------------------------\r\n");
 		logger.info("start scanning {} ...\r\n", filePath);
 		logger.info("----------------------------------------\r\n");
@@ -49,13 +65,21 @@ public class App {
 			}
 
 			SourceRow sRow = new SourceRow(source);
-			logger.debug("{}. ", number++);
+			logger.debug("{}. ", number);
+			FileOutput.write(String.format("%d. ", number++));
 			sRow.print();
 			IRow row = sRow.run();
 			List<TrueAndFalse> rtn = row.run();
 			for(TrueAndFalse taf : rtn){
 				taf.print();
 				taf.run();
+				boolean[] result = new boolean[taf.getResult().size()];
+				for(int i=0; i<taf.getResult().size(); i++)
+					result[i] = taf.getResult().get(i);
+				IProcessor processor = Start.findProcessor(result);
+				if(null != processor){
+					processor.execute();
+				}
 			}
 			totalResult.add(rtn);
 		}
@@ -135,6 +159,6 @@ public class App {
 			}
 		//}
 		logger.info("--------------------------------------------------\r\n");
-		
+		FileOutput.close();
 	}
 }

@@ -20,6 +20,7 @@ public class SourceRow {
 	
 	public void print(){
 		logger.info("{}\r\n", this.source);
+		FileOutput.write(String.format("%s\r\n", this.source));
 	}
 	
 	/*public Row run(){
