@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -56,6 +57,8 @@ public class App {
 		String lineTxt = null;
 		List<List<TrueAndFalse>> totalResult = new ArrayList<List<TrueAndFalse>>();
 		int number = 1;
+		List<Integer> maxSteps = new ArrayList<Integer>();
+		List<Integer> countOfCycles = new ArrayList<Integer>();
 		while ((lineTxt = bufferedReader.readLine()) != null) {
 
 			String source = lineTxt.trim();
@@ -73,13 +76,20 @@ public class App {
 			for(TrueAndFalse taf : rtn){
 				taf.print();
 				taf.run();
+				
 				boolean[] result = new boolean[taf.getResult().size()];
 				for(int i=0; i<taf.getResult().size(); i++)
 					result[i] = taf.getResult().get(i);
 				IProcessor processor = Start.findProcessor(result);
+				int maxStep=0;
+				int countOfCycle=0;
 				if(null != processor){
 					processor.execute();
+					maxStep = processor.getMaxStep();
+					countOfCycle = processor.getCountOfCycle();
 				}
+				maxSteps.add(maxStep);
+				countOfCycles.add(countOfCycle);
 			}
 			totalResult.add(rtn);
 		}
@@ -159,6 +169,31 @@ public class App {
 			}
 		//}
 		logger.info("--------------------------------------------------\r\n");
+		
+		HashMap<Integer, Integer> maxStepMap = new HashMap<Integer, Integer>();
+		for(int maxStep : maxSteps){
+			if(null == maxStepMap.get(maxStep))
+				maxStepMap.put(maxStep, 1);
+			else
+				maxStepMap.put(maxStep, maxStepMap.get(maxStep)+1);
+		}
+		for(Map.Entry entry : maxStepMap.entrySet()){
+			logger.debug("MAX {} : {}\r\n", entry.getKey(), entry.getValue());
+			FileOutput.write(String.format("MAX %d : %d\r\n", entry.getKey(), entry.getValue()));
+		}
+		
+		HashMap<Integer, Integer> cycleMap = new HashMap<Integer, Integer>();
+		for(int countOfCycle : countOfCycles){
+			if(null == cycleMap.get(countOfCycle))
+				cycleMap.put(countOfCycle, 1);
+			else
+				cycleMap.put(countOfCycle, cycleMap.get(countOfCycle)+1);
+		}
+		for(Map.Entry entry : cycleMap.entrySet()){
+			logger.debug("COUNT {} : {}\r\n", entry.getKey(), entry.getValue());
+			FileOutput.write(String.format("COUNT %d : %d\r\n", entry.getKey(), entry.getValue()));
+		}
+		
 		FileOutput.close();
 	}
 }

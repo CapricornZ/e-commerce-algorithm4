@@ -21,6 +21,14 @@ public class Processor3O implements IProcessor {
 		this.source = source;
 	}
 	
+	private int maxStep;
+	@Override
+	public int getMaxStep() { return maxStep; }
+	
+	private int countOfCycle;
+	@Override
+	public int getCountOfCycle(){ return this.countOfCycle; }
+	
 	@Override
 	public void execute() {
 		
@@ -43,6 +51,7 @@ public class Processor3O implements IProcessor {
 			if(steps.size() == 0)
 				try {
 					cycle = (ICycle) constructor.newInstance(1);
+					this.countOfCycle++;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -52,6 +61,7 @@ public class Processor3O implements IProcessor {
 					step += Math.abs(var);
 				try {
 					cycle = (ICycle) constructor.newInstance(step);
+					this.countOfCycle++;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -66,7 +76,9 @@ public class Processor3O implements IProcessor {
 			for(int index=0; !bStop && index<cycle.getProcess().size(); index++){
 				int val = cycle.getProcess().get(index);
 				totalSum += val;
-				//System.out.print(String.format("%s%d", val<0?"":"+", val));
+				if(this.maxStep < Math.abs(val))
+					this.maxStep = Math.abs(val);
+				
 				logger.debug(String.format("%s%d", val<0?"":"+", val));
 				FileOutput.write(String.format("%s%d", val<0?"":"+", val));
 				if(totalSum >= 2)
@@ -78,8 +90,8 @@ public class Processor3O implements IProcessor {
 				break;
 		}
 
-		logger.debug(String.format("=%d\r\n", totalSum));
-		FileOutput.write(String.format("=%d\r\n", totalSum));
+		logger.debug(String.format("=%d {MAX:%d}\r\n", totalSum, this.maxStep));
+		FileOutput.write(String.format("=%d {MAX:%d}\r\n", totalSum, this.maxStep));
 	}
 
 }
