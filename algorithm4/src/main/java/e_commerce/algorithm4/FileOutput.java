@@ -12,6 +12,15 @@ public class FileOutput {
 		out = new FileOutputStream(filepath);
 	}
 	
+	static public void writeline(String content){
+		
+		try {
+			out.write(content.getBytes());
+			out.write("\r\n".getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	static public void write(String content){
 		try {
 			out.write(content.getBytes());

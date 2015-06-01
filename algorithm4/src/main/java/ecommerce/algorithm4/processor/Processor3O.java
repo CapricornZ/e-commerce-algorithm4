@@ -1,4 +1,4 @@
-package process;
+package ecommerce.algorithm4.processor;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -7,43 +7,54 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import e_commerce.algorithm4.App;
-import e_commerce.algorithm4.FileOutput;
-
+/***
+ * 固定的使用同一种期待(同Processor3X)
+ * @author martin
+ *
+ */
 public class Processor3O implements IProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(Processor3O.class);
 	
 	private int offset;
 	private boolean[] source;
-	public Processor3O(boolean[] source, int offset){
+	private int cycleStep;
+	private String class3O;
+	public Processor3O(boolean[] source, int offset, int cycleStep, String class3O){
 		this.offset = offset;
 		this.source = source;
+		this.cycleStep = cycleStep;
+		this.class3O = class3O;
 	}
 	
 	private int maxStep;
 	@Override
-	public int getMaxStep() { return maxStep; }
+	public int getMaxStep() { return this.maxStep; }
 	
 	private int countOfCycle;
-	@Override
 	public int getCountOfCycle(){ return this.countOfCycle; }
 	
+	private List<Integer> procedure;
 	@Override
-	public void execute() {
-		
+	public List<Integer> getProcedure(){ return this.procedure; }
+	
+	@Override
+	public boolean execute() {
+
+		boolean finished = false;
+		this.procedure = new ArrayList<Integer>();
 		Constructor<ICycle> constructor = null;
 		try {
 			@SuppressWarnings("unchecked")
-			Class<ICycle> Cycle = (Class<ICycle>) Class.forName(App.Class3O);
+			Class<ICycle> Cycle = (Class<ICycle>) Class.forName(this.class3O);
 			constructor = Cycle.getConstructor(int.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		int cycleStep = App.cycleStep;
+		int cycleStep = this.cycleStep;
 		logger.debug("3O FOUND");
-		FileOutput.write("3O FOUND");
+		//FileOutput.write("3O FOUND");
 		int totalSum = 0;
 		List<Integer> steps = new ArrayList<Integer>();
 		for(int i=0; i+offset<this.source.length; i+=cycleStep){
@@ -78,20 +89,30 @@ public class Processor3O implements IProcessor {
 				totalSum += val;
 				if(this.maxStep < Math.abs(val))
 					this.maxStep = Math.abs(val);
-				
 				logger.debug(String.format("%s%d", val<0?"":"+", val));
-				FileOutput.write(String.format("%s%d", val<0?"":"+", val));
-				if(totalSum >= 2)
+				this.procedure.add(val);
+				//FileOutput.write(String.format("%s%d", val<0?"":"+", val));
+				if(totalSum >= 2){
 					bStop = true;
+					finished = true;
+				}
 			}
 			if(bStop)
 				break;
-			if(i==0 && sum == 0)
+			if(i==0 && sum == 0){
+				finished = true;
 				break;
+			}
 		}
 
-		logger.debug(String.format("=%d [MAX:%d, COUNT:%d]\r\n", totalSum, this.maxStep, this.countOfCycle));
-		FileOutput.write(String.format("=%d [MAX:%d, COUNT:%d]\r\n", totalSum, this.maxStep, this.countOfCycle));
+		logger.debug(String.format("=%d {MAX:%d}\r\n", totalSum, this.maxStep));
+		//FileOutput.write(String.format("=%d {MAX:%d}\r\n", totalSum, this.maxStep));
+		
+		/*if(this.offset+this.procedure.size()<this.source.length)
+			return true;
+		else
+			return false;*/
+		return finished;
 	}
 
 }

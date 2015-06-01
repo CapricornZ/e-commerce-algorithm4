@@ -29,7 +29,10 @@ public class App {
 	
 	public static String Class3O = "process.CycleNegtive";
 	public static String Class3X = "process.CyclePositive";
-	public static int cycleStep=3;
+	
+	public static int cycleStep=6;
+	public static String class3X = "ecommerce.algorithm4.processor.CycleNegtive";
+	public static String class3O = "ecommerce.algorithm4.processor.CyclePositive";
 
 	public static void main(String[] args) throws IOException {
 
@@ -80,13 +83,19 @@ public class App {
 				boolean[] result = new boolean[taf.getResult().size()];
 				for(int i=0; i<taf.getResult().size(); i++)
 					result[i] = taf.getResult().get(i);
-				IProcessor processor = Start.findProcessor(result);
+				//IProcessor processor = Start.findProcessor(result);
+				ecommerce.algorithm4.processor.IProcessor processor = 
+						ecommerce.algorithm4.processor.Start.findProcessor(
+								result, App.cycleStep, App.class3X, App.class3O);
 				int maxStep=0;
 				int countOfCycle=0;
+				Result r = null;
 				if(null != processor){
-					processor.execute();
+					boolean bStop = processor.execute();
 					maxStep = processor.getMaxStep();
 					countOfCycle = processor.getCountOfCycle();
+					r = new Result(processor.getProcedure(), processor.getMaxStep(), bStop, processor.getCountOfCycle());
+					FileOutput.writeline(r.getFormated());
 				}
 				maxSteps.add(maxStep);
 				countOfCycles.add(countOfCycle);
@@ -170,6 +179,7 @@ public class App {
 		//}
 		logger.info("--------------------------------------------------\r\n");
 		
+		int sumOfMax = maxSteps.size();
 		HashMap<Integer, Integer> maxStepMap = new HashMap<Integer, Integer>();
 		for(int maxStep : maxSteps){
 			if(null == maxStepMap.get(maxStep))
@@ -178,10 +188,11 @@ public class App {
 				maxStepMap.put(maxStep, maxStepMap.get(maxStep)+1);
 		}
 		for(Map.Entry entry : maxStepMap.entrySet()){
-			logger.debug("MAX {} : {}\r\n", entry.getKey(), entry.getValue());
-			FileOutput.write(String.format("MAX %d : %d\r\n", entry.getKey(), entry.getValue()));
+			logger.debug("MAX {} : {} [{}%]\r\n", entry.getKey(), entry.getValue(), (float)((Integer)entry.getValue()*100)/(float)sumOfMax);
+			FileOutput.write(String.format("MAX %d : %d [%f%%]\r\n", entry.getKey(), entry.getValue(), (float)((Integer)entry.getValue()*100)/(float)sumOfMax));
 		}
 		
+		int sumOfCycle = countOfCycles.size();
 		HashMap<Integer, Integer> cycleMap = new HashMap<Integer, Integer>();
 		for(int countOfCycle : countOfCycles){
 			if(null == cycleMap.get(countOfCycle))
@@ -190,8 +201,8 @@ public class App {
 				cycleMap.put(countOfCycle, cycleMap.get(countOfCycle)+1);
 		}
 		for(Map.Entry entry : cycleMap.entrySet()){
-			logger.debug("COUNT {} : {}\r\n", entry.getKey(), entry.getValue());
-			FileOutput.write(String.format("COUNT %d : %d\r\n", entry.getKey(), entry.getValue()));
+			logger.debug("COUNT {} : {} [{}%]\r\n", entry.getKey(), entry.getValue(), (float)((Integer)entry.getValue()*100)/(float)sumOfCycle);
+			FileOutput.write(String.format("COUNT %d : %d [%f%%]\r\n", entry.getKey(), entry.getValue(), (float)((Integer)entry.getValue()*100)/(float)sumOfCycle));
 		}
 		
 		FileOutput.close();
